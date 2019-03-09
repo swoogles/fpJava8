@@ -1,7 +1,8 @@
 package com.billding;
 
 import java.util.List;
+import java.util.Set;
 
 public interface CriminalHistory {
-    List<Crime> of(Person person);
+    Set<CrimeType> of(Person person);
 }
