@@ -22,20 +22,31 @@ public class Classifications {
         Predicate<Person> isASuperAdult = (person) -> person.age() >= 21;
         Predicate<Person> legallyAbleToBuyBeer = isASuperAdult;
 
-        Predicate<Person> hasAnActiveCreditCard = (person) -> true; // TODO Make an interface that retrieves this info.
+        Predicate<Person> hasAnActiveCreditCard = (person) -> true; // TODO Real implementation
         Predicate<Person> doesNotHaveADui = (person) -> !criminalHistory.of(person).contains(CrimeType.DUI);
 
         Predicate<Person> is25OrOlder  = (person) -> person.age() >= 25;
 
-        Predicate<Person> clearedABackGroundCheck = (person) -> true; // TODO Make an interface that retrieves this info.
-        Predicate<Person> canPassAPolygraph = (person) -> true; // TODO Make an interface that retrieves this info.
-        Predicate<Person> hasNotUsedIllegalDrugsInTheLastDecade  = (person) -> true; // TODO Make an interface that retrieves this info.
-        Predicate<Person> marriedToThePresidentsDaughter = (person) -> true; // TODO Make an interface that retrieves this info.
+        Predicate<Person> clearedABackGroundCheck = (person) -> true; // TODO Real implementation
+        Predicate<Person> canPassAPolygraph = (person) -> true; // TODO Real implementation
+        Predicate<Person> hasNotUsedIllegalDrugsInTheLastDecade  = (person) -> true; // TODO Real implementation
+        Predicate<Person> marriedToThePresidentsDaughter = (person) -> true; // TODO Real implementation
 
         Predicate<Person> ableToRentACar  =
             is25OrOlder
                 .and(hasAnActiveCreditCard)
                 .and(doesNotHaveADui);
+
+        Predicate<Person> completedOfficerTrainingSchool = (person) -> true;
+
+        Predicate<Person> completedPilotTraining = (person) -> true;
+
+        Predicate<Person> ableToBeAnAirForcePilot =
+            completedPilotTraining
+            .and(completedOfficerTrainingSchool)
+            .and(clearedABackGroundCheck)
+            .and(minimumAge(18))
+            .and(maximumAge(19));
 
         Predicate<Person> canGetTopSecretSecurityClearance =
             (
@@ -46,6 +57,14 @@ public class Classifications {
             ).or(marriedToThePresidentsDaughter);
 
         return new Lesson(Collections.singleton(Topic.Predicate));
+    }
+
+    // Use this to show how age restrictions can be DRYed out.
+    Predicate<Person> minimumAge(int age) {
+        return (person) -> person.age() > age;
+    }
+    Predicate<Person> maximumAge(int age) {
+        return (person) -> person.age() > age;
     }
 
 }
