@@ -1,6 +1,7 @@
 package com.billding;
 
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.function.Predicate;
 
 public class Classifications {
@@ -12,6 +13,11 @@ public class Classifications {
         this.criminalHistory = criminalHistory;
         this.academicHistory = academicHistory;
         this.finances = finances;
+    }
+
+    // Compare this against using the predicate
+    boolean isAnAdult(Person person) { // The types explain this function behavior, but they indicate a more general pattern
+        return person.age() > 18;
     }
 
     public Lesson predicateExamples() {
@@ -66,7 +72,7 @@ public class Classifications {
             .and(hasBeenSteadilyEmployed)
             ;
 
-        return new Lesson(Collections.singleton(Topic.Predicate));
+        return new Lesson(EnumSet.of(Topic.Predicate, Topic.Composition));
     }
 
     // Use this to show how age restrictions can be DRYed out.

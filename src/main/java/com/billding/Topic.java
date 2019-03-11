@@ -4,6 +4,7 @@ public enum Topic {
     Function,
     Predicate,
     Stream,
-    SideEffects
+    SideEffects,
+    Composition
 
 }
