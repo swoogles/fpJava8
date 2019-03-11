@@ -5,9 +5,13 @@ import java.util.function.Predicate;
 
 public class Classifications {
     private final CriminalHistory criminalHistory;
+    private final AcademicHistory academicHistory;
+    private final Finances finances;
 
-    public Classifications(CriminalHistory criminalHistory) {
+    public Classifications(CriminalHistory criminalHistory, AcademicHistory academicHistory, Finances finances) {
         this.criminalHistory = criminalHistory;
+        this.academicHistory = academicHistory;
+        this.finances = finances;
     }
 
 
@@ -18,14 +22,10 @@ public class Classifications {
         Predicate<Person> legallyAbleToVote = isAnAdult.and(isNotAFelon);
         Predicate<Person> legallyAbleToBuyAGun = isAnAdult.and(isNotAFelon);
 
-
-        Predicate<Person> isASuperAdult = (person) -> person.age() >= 21;
-        Predicate<Person> legallyAbleToBuyBeer = isASuperAdult;
+        Predicate<Person> legallyAbleToBuyBeer = (person) -> person.age() >= 21;
 
         Predicate<Person> hasAnActiveCreditCard = (person) -> true; // TODO Real implementation
         Predicate<Person> doesNotHaveADui = (person) -> !criminalHistory.of(person).contains(CrimeType.DUI);
-
-        Predicate<Person> is25OrOlder  = (person) -> person.age() >= 25;
 
         Predicate<Person> clearedABackGroundCheck = (person) -> true; // TODO Real implementation
         Predicate<Person> canPassAPolygraph = (person) -> true; // TODO Real implementation
@@ -33,28 +33,40 @@ public class Classifications {
         Predicate<Person> marriedToThePresidentsDaughter = (person) -> true; // TODO Real implementation
 
         Predicate<Person> ableToRentACar  =
-            is25OrOlder
-                .and(hasAnActiveCreditCard)
-                .and(doesNotHaveADui);
+                hasAnActiveCreditCard
+                .and(doesNotHaveADui)
+                .and((person) -> person.age() >= 25);
+
+        Predicate<Person> hasABachelorsDegree = (person) -> true;
 
         Predicate<Person> completedOfficerTrainingSchool = (person) -> true;
 
         Predicate<Person> completedPilotTraining = (person) -> true;
 
+
         Predicate<Person> ableToBeAnAirForcePilot =
             completedPilotTraining
             .and(completedOfficerTrainingSchool)
+            .and(hasABachelorsDegree)
             .and(clearedABackGroundCheck)
             .and(minimumAge(18))
             .and(maximumAge(19));
 
         Predicate<Person> canGetTopSecretSecurityClearance =
-            (
-                clearedABackGroundCheck
-                    .and(isNotAFelon)
-                    .and(hasNotUsedIllegalDrugsInTheLastDecade)
-                    .and(canPassAPolygraph)
-            ).or(marriedToThePresidentsDaughter);
+            clearedABackGroundCheck
+                .and(isNotAFelon)
+                .and(hasNotUsedIllegalDrugsInTheLastDecade)
+                .and(canPassAPolygraph)
+                .or(marriedToThePresidentsDaughter);
+
+        Predicate<Person> hasBeenSteadilyEmployed = (person) -> true;
+
+        Predicate<Person> approvedForAMortgage =
+            minimumAge(18)
+            .and(person-> finances.creditScoreFor(person) > 500)
+            .and(person-> finances.savings(person) > 500)
+            .and(hasBeenSteadilyEmployed)
+            ;
 
         return new Lesson(Collections.singleton(Topic.Predicate));
     }
