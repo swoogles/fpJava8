@@ -14,14 +14,12 @@ public class Classifications {
         this.finances = finances;
     }
 
-
     public Lesson predicateExamples() {
         Predicate<Person> isAnAdult = (person) -> person.age() >= 18;
         Predicate<Person> isNotAFelon = (person) -> !criminalHistory.of(person).contains(CrimeType.FELONY);
 
         Predicate<Person> legallyAbleToVote = isAnAdult.and(isNotAFelon);
         Predicate<Person> legallyAbleToBuyAGun = isAnAdult.and(isNotAFelon);
-
         Predicate<Person> legallyAbleToBuyBeer = (person) -> person.age() >= 21;
 
         Predicate<Person> hasAnActiveCreditCard = (person) -> true; // TODO Real implementation
