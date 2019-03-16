@@ -9,7 +9,11 @@ public class Classifications {
     private final AcademicHistory academicHistory;
     private final Finances finances;
 
-    public Classifications(CriminalHistory criminalHistory, AcademicHistory academicHistory, Finances finances) {
+    public Classifications(
+        CriminalHistory criminalHistory,
+        AcademicHistory academicHistory,
+        Finances finances
+    ) {
         this.criminalHistory = criminalHistory;
         this.academicHistory = academicHistory;
         this.finances = finances;
@@ -20,33 +24,51 @@ public class Classifications {
         return person.age() > 18;
     }
 
-    public Lesson predicateExamples() {
+    public Lesson predicateExamples(
+        Predicate<Person> hasAnActiveCreditCard,
+        Predicate<Person> livesInTexas,
+        Predicate<Person> hasNotUsedIllegalDrugsInTheLastDecade,
+        Predicate<Person> clearedABackGroundCheck,
+        Predicate<Person> canPassAPolygraph,
+        Predicate<Person> completedPilotTraining,
+        Predicate<Person> hasABachelorsDegree,
+        Predicate<Person> hasDefendedAThesis,
+        Predicate<Person> hasAnHonoraryDoctorate,
+        Predicate<Person> hasNotableNonAcademicAchievements,
+        Predicate<Person> completedOfficerTrainingSchool,
+        Predicate<Person> hasBeenSteadilyEmployed,
+        Predicate<Person> marriedToThePresidentsDaughter,
+        Predicate<Person> publishedInAPeerReviewedJournal
+    ) {
         Predicate<Person> isAnAdult = (person) -> person.age() >= 18;
         Predicate<Person> isNotAFelon = (person) -> !criminalHistory.of(person).contains(CrimeType.FELONY);
 
         Predicate<Person> legallyAbleToVote = isAnAdult.and(isNotAFelon);
-        Predicate<Person> legallyAbleToBuyAGun = isAnAdult.and(isNotAFelon);
+        Predicate<Person> legallyAbleToBuyAGun = isAnAdult.and(isNotAFelon).or(livesInTexas);
         Predicate<Person> legallyAbleToBuyBeer = (person) -> person.age() >= 21;
 
-        Predicate<Person> hasAnActiveCreditCard = (person) -> true; // TODO Real implementation
-        Predicate<Person> doesNotHaveADui = (person) -> !criminalHistory.of(person).contains(CrimeType.DUI);
 
-        Predicate<Person> clearedABackGroundCheck = (person) -> true; // TODO Real implementation
-        Predicate<Person> canPassAPolygraph = (person) -> true; // TODO Real implementation
-        Predicate<Person> hasNotUsedIllegalDrugsInTheLastDecade  = (person) -> true; // TODO Real implementation
-        Predicate<Person> marriedToThePresidentsDaughter = (person) -> true; // TODO Real implementation
+        Predicate<Person> hasAPhd =
+            hasABachelorsDegree
+            .and(publishedInAPeerReviewedJournal)
+            .and(hasDefendedAThesis);
+
+
+
+        Predicate<Person> ableToBeAProfessor =
+            hasAPhd
+                .or(
+                    hasAnHonoraryDoctorate
+                        .and(hasNotableNonAcademicAchievements));
+
+
+        Predicate<Person> doesNotHaveADui =
+            (person) -> !criminalHistory.of(person).contains(CrimeType.DUI);
 
         Predicate<Person> ableToRentACar  =
                 hasAnActiveCreditCard
                 .and(doesNotHaveADui)
                 .and((person) -> person.age() >= 25);
-
-        Predicate<Person> hasABachelorsDegree = (person) -> true;
-
-        Predicate<Person> completedOfficerTrainingSchool = (person) -> true;
-
-        Predicate<Person> completedPilotTraining = (person) -> true;
-
 
         Predicate<Person> ableToBeAnAirForcePilot =
             completedPilotTraining
@@ -54,7 +76,7 @@ public class Classifications {
             .and(hasABachelorsDegree)
             .and(clearedABackGroundCheck)
             .and(minimumAge(18))
-            .and(maximumAge(19));
+            .and(maximumAge(30));
 
         Predicate<Person> canGetTopSecretSecurityClearance =
             clearedABackGroundCheck
@@ -63,7 +85,7 @@ public class Classifications {
                 .and(canPassAPolygraph)
                 .or(marriedToThePresidentsDaughter);
 
-        Predicate<Person> hasBeenSteadilyEmployed = (person) -> true;
+
 
         Predicate<Person> approvedForAMortgage =
             minimumAge(18)
@@ -77,10 +99,10 @@ public class Classifications {
 
     // Use this to show how age restrictions can be DRYed out.
     Predicate<Person> minimumAge(int age) {
-        return (person) -> person.age() > age;
+        return (person) -> person.age() >= age;
     }
     Predicate<Person> maximumAge(int age) {
-        return (person) -> person.age() > age;
+        return (person) -> person.age() <= age;
     }
 
 }
