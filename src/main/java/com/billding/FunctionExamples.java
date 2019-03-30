@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.function.BinaryOperator;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -61,7 +62,9 @@ public class FunctionExamples {
         Function<Simulation, Screenshot> snapshot,
         Function<List<Screenshot>, VideoOutput> createVideoFrom,
         Consumer<Screenshot> printOnScreen, // TODO Maybe "ScreenShot" isn't the best name. Frame?
-        Consumer<Screenshot> saveToDisk
+        Consumer<Screenshot> saveScreenshotToDisk,
+        Consumer<VideoOutput> saveVideoToDisk,
+        Supplier<List<Screenshot>> getScreenshotsFromDisk
     ) {
         Function<SimulationParameters, VideoOutput> fullProgram;
 
@@ -75,7 +78,7 @@ public class FunctionExamples {
 
         BinaryOperator<Simulation> simulationBinaryOperator =
             (sim1, sim2) -> {
-                printOnScreen.andThen(saveToDisk);
+                printOnScreen.andThen(saveScreenshotToDisk);
                 printOnScreen.accept(snapshot.apply(sim2));
                 return sim2; // Afer sim1 has been used to create sim2, we can trash it.
             };
@@ -86,8 +89,11 @@ public class FunctionExamples {
             (sim, step) -> sim.update(simulationParameters.dt()),
             simulationBinaryOperator
         );
-        // So far, I'm not handling screenshots along the way.
 
+        List<Screenshot> screenshots = getScreenshotsFromDisk.get();
+//        createVideoFrom.compose(getScreenshotsFromDisk);
+        createVideoFrom.andThen(saveVideoToDisk);
+        createVideoFrom.apply(screenshots);
         return new Lesson(EnumSet.of(Topic.Function, Topic.Composition));
     }
 
