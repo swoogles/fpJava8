@@ -2,8 +2,11 @@ package com.billding;
 
 import java.util.EnumSet;
 import java.util.List;
+import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 public class FunctionExamples {
     private class Click {}
@@ -34,19 +37,47 @@ public class FunctionExamples {
         return new Lesson(EnumSet.of(Topic.Function, Topic.Composition));
     }
 
-    private class SimulationParameters {}
-    private class Particle {}
-    private class Octree {}
-    private class Simulation {}
+    private interface Duration {
+        int dividedBy(Duration duration);
+    };
+    private interface SimulationParameters {
+        Duration runTime();
+        Duration dt();
+    }
+    private interface Particle {}
+    private interface Octree {}
+    private interface Simulation {
+        Simulation update(Duration dt);
+    }
+    private interface Screenshot {}
     private class VideoOutput {}
 
     public Lesson starFormation(
-        Function<SimulationParameters, List<Particle>> particleGenerator
-
-
+        SimulationParameters simulationParameters,
+        Function<SimulationParameters, List<Particle>> particleGenerator,
+        Function<List<Particle>, Octree> createTreeContaining,
+        Function<Octree, Simulation> createSimulationWith,
+        Function<Simulation, Screenshot> snapshot,
+        Function<List<Screenshot>, VideoOutput> createVideoFrom
     ) {
         Function<SimulationParameters, VideoOutput> fullProgram;
 
+        Function<SimulationParameters, Simulation> initializeSimulation = particleGenerator
+            .andThen(createTreeContaining)
+            .andThen(createSimulationWith);
+
+        Simulation simulation = initializeSimulation.apply(simulationParameters);
+
+        int numberOfSteps = simulationParameters.runTime().dividedBy(simulationParameters.dt());
+
+        BinaryOperator<Simulation> simulationBinaryOperator = null;
+        Stream.of(1, 2, 3).reduce(
+            simulation,
+            (sim, step) -> sim,
+            simulationBinaryOperator);
+        for (int i = 0; i < numberOfSteps; i++) {
+
+        }
 
     }
 
