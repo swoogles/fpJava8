@@ -3,6 +3,7 @@ package com.billding;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.function.BinaryOperator;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -58,7 +59,9 @@ public class FunctionExamples {
         Function<List<Particle>, Octree> createTreeContaining,
         Function<Octree, Simulation> createSimulationWith,
         Function<Simulation, Screenshot> snapshot,
-        Function<List<Screenshot>, VideoOutput> createVideoFrom
+        Function<List<Screenshot>, VideoOutput> createVideoFrom,
+        Consumer<Screenshot> printOnScreen, // TODO Maybe "ScreenShot" isn't the best name. Frame?
+        Consumer<Screenshot> saveToDisk
     ) {
         Function<SimulationParameters, VideoOutput> fullProgram;
 
@@ -70,15 +73,22 @@ public class FunctionExamples {
 
         int numberOfSteps = simulationParameters.runTime().dividedBy(simulationParameters.dt());
 
-        BinaryOperator<Simulation> simulationBinaryOperator = null;
-        Stream.of(1, 2, 3).reduce(
+        BinaryOperator<Simulation> simulationBinaryOperator =
+            (sim1, sim2) -> {
+                printOnScreen.andThen(saveToDisk);
+                printOnScreen.accept(snapshot.apply(sim2));
+                return sim2; // Afer sim1 has been used to create sim2, we can trash it.
+            };
+
+        Stream<Integer> steps = Stream.of(1, 2, 3);
+        Simulation completedSimulation = steps.reduce(
             simulation,
-            (sim, step) -> sim,
-            simulationBinaryOperator);
-        for (int i = 0; i < numberOfSteps; i++) {
+            (sim, step) -> sim.update(simulationParameters.dt()),
+            simulationBinaryOperator
+        );
+        // So far, I'm not handling screenshots along the way.
 
-        }
-
+        return new Lesson(EnumSet.of(Topic.Function, Topic.Composition));
     }
 
 
