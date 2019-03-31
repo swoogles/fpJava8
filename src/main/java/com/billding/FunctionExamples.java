@@ -83,17 +83,21 @@ public class FunctionExamples {
                 return sim2; // Afer sim1 has been used to create sim2, we can trash it.
             };
 
-        Stream<Integer> steps = Stream.of(1, 2, 3);
+        Stream<Integer> steps = IntStream.range(0, numberOfSteps).boxed();
         Simulation completedSimulation = steps.reduce(
             simulation,
             (sim, step) -> sim.update(simulationParameters.dt()),
             simulationBinaryOperator
         );
 
-        List<Screenshot> screenshots = getScreenshotsFromDisk.get();
-//        createVideoFrom.compose(getScreenshotsFromDisk);
-        createVideoFrom.andThen(saveVideoToDisk);
-        createVideoFrom.apply(screenshots);
+        Runnable finalOutput = () -> {
+            List<Screenshot> screenshots = getScreenshotsFromDisk.get();
+            // You can't do Function.andThen(Consumer)
+            //   createVideoFrom.compose(getScreenshotsFromDisk);
+            // That's a big bummer.
+            VideoOutput videoOutput = createVideoFrom.apply(screenshots);
+            saveVideoToDisk.accept(videoOutput);
+        };
         return new Lesson(EnumSet.of(Topic.Function, Topic.Composition));
     }
 
